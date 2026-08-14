@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>요티 HTML 업로드 테스트 샘플</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Pretendard", sans-serif;
+      color: #171717;
+      background: #f5f7fb;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button, input { font: inherit; }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 68px;
+      padding: 0 6vw;
+      border-bottom: 1px solid #e6e8ee;
+      background: #fff;
+    }
+    header strong { font-size: 18px; }
+    header span { color: #656b78; font-size: 13px; }
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 390px);
+      min-height: calc(100vh - 68px);
+      gap: 48px;
+      padding: 8vh 8vw;
+    }
+    .copy { align-self: center; }
+    .eyebrow { color: #6547e8; font-size: 13px; font-weight: 750; }
+    h1 { max-width: 650px; margin: 12px 0 18px; font-size: clamp(36px, 6vw, 72px); line-height: 1.04; letter-spacing: -.05em; }
+    .copy p { max-width: 560px; color: #656b78; font-size: 17px; line-height: 1.7; }
+    .copy button {
+      min-height: 48px;
+      margin-top: 16px;
+      padding: 0 20px;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
+      background: #6547e8;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .card {
+      align-self: center;
+      padding: 28px;
+      border: 1px solid #e6e8ee;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(24, 28, 40, .1);
+    }
+    .card h2 { margin: 0 0 6px; font-size: 22px; }
+    .card p { margin: 0 0 22px; color: #656b78; font-size: 13px; }
+    label { display: grid; gap: 7px; margin-top: 14px; font-size: 13px; font-weight: 700; }
+    input {
+      min-height: 46px;
+      padding: 0 13px;
+      border: 1px solid #d8dbe3;
+      border-radius: 10px;
+    }
+    input:focus { outline: 3px solid rgba(101, 71, 232, .18); border-color: #6547e8; }
+    .card button {
+      width: 100%;
+      min-height: 48px;
+      margin-top: 22px;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
+      background: #171717;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .result {
+      display: none;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 12px;
+      color: #176b43;
+      background: #eaf8f0;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .result.is-visible { display: block; }
+    @media (max-width: 760px) {
+      main { grid-template-columns: 1fr; padding: 48px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header><strong>Monday Kit</strong><span>HTML prototype</span></header>
+  <main>
+    <section class="copy">
+      <span class="eyebrow">일주일을 가볍게 시작하세요</span>
+      <h1>해야 할 일을 한곳에서 정리해요.</h1>
+      <p>이번 주에 가장 중요한 목표를 적고 나만의 보드를 만들어보세요. 이 페이지의 모든 스타일과 동작은 한 HTML 파일 안에 들어 있습니다.</p>
+      <button type="button" id="focus-name">이름부터 입력하기</button>
+    </section>
+    <form class="card" id="board-form">
+      <h2>새 보드 만들기</h2>
+      <p>두 항목을 입력하면 바로 시작할 수 있어요.</p>
+      <label>보드 이름<input id="board-name" name="board-name" placeholder="예: 8월 제품 출시" required /></label>
+      <label>이번 주 목표<input name="goal" placeholder="예: 인터뷰 5명 완료" required /></label>
+      <button type="submit">보드 만들기</button>
+      <div class="result" id="result" role="status"></div>
+    </form>
+  </main>
+  <script>
+    const form = document.querySelector('#board-form');
+    const nameInput = document.querySelector('#board-name');
+    document.querySelector('#focus-name').addEventListener('click', () => nameInput.focus());
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const result = document.querySelector('#result');
+      result.textContent = `“${nameInput.value}” 보드를 만들었어요. 이제 요티에서 과업 완료를 눌러보세요.`;
+      result.classList.add('is-visible');
+    });
+  </script>
+</body>
+</html>
