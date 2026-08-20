@@ -1,4 +1,4 @@
-# EZIT Design System Reference
+# YODI Design System Reference
 
 > 기반 구조: KSNET Design System | Primary: Sky Blue(`#8EC2FC`) | Secondary: Mint Green(`#70D9AD`) | Gray: Cool 계열
 
@@ -923,4 +923,4 @@ Accordion [Vertical]
 
 ---
 
-> **버전**: EZIT Design System v1.1 | **기반**: KSNET Design System 구조 | **Primary**: Sky Blue(`#8EC2FC`) | **Secondary**: Mint Green(`#70D9AD`) | **Checkin**: Purple(`#8B5CF6`) | **Background**: `#F9FAFB` | **Gray**: Cool 계열
+> **버전**: YODI Design System v1.1 | **기반**: KSNET Design System 구조 | **Primary**: Sky Blue(`#8EC2FC`) | **Secondary**: Mint Green(`#70D9AD`) | **Checkin**: Purple(`#8B5CF6`) | **Background**: `#F9FAFB` | **Gray**: Cool 계열

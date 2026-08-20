@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>정기권 신청</title>
+<style>
+  :root{color-scheme:light}
+  *{box-sizing:border-box}
+  body{margin:0;background:#F9FAFB;color:#191F28;
+    font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    letter-spacing:-.02em;word-break:keep-all}
+  .wrap{max-width:390px;margin:0 auto;background:#F9FAFB;min-height:100vh;padding:0 20px 40px}
+  header{display:flex;align-items:center;gap:12px;height:56px}
+  header button{background:none;border:0;font-size:20px;cursor:pointer;color:#4E5968;padding:0}
+  header strong{font-size:16px;font-weight:600}
+  h1{font-size:24px;line-height:34px;margin:16px 0 4px}
+  .sub{font-size:14px;line-height:22px;color:#6B7684;margin:0 0 20px}
+  .opt{display:flex;align-items:center;gap:12px;padding:16px;background:#fff;
+    border:1px solid #D1D6DB;border-radius:8px;margin-bottom:10px;cursor:pointer;width:100%;text-align:left}
+  .opt[aria-checked="true"]{border-color:#191F28;background:#fff;box-shadow:0 4px 12px rgba(145,158,171,.14)}
+  .opt .dot{width:18px;height:18px;border-radius:50%;border:1.5px solid #D1D6DB;flex:none;display:grid;place-items:center}
+  .opt[aria-checked="true"] .dot{border-color:#191F28}
+  .opt[aria-checked="true"] .dot::after{content:"";width:9px;height:9px;border-radius:50%;background:#191F28}
+  .opt .body{flex:1}
+  .opt b{display:block;font-size:14px;font-weight:600}
+  .opt small{display:block;font-size:12px;color:#8B95A1;margin-top:2px}
+  .opt .won{font-size:16px;font-weight:700}
+  .tag{display:inline-block;font-size:11px;font-weight:600;color:#189C74;
+    background:rgba(112,217,173,.16);padding:2px 6px;border-radius:6px;margin-left:6px}
+  .summary{background:#F2F4F6;border-radius:8px;padding:14px 16px;margin:16px 0}
+  .row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
+  .row.total{border-top:1px solid #E5E8EB;margin-top:6px;padding-top:12px;font-weight:700;font-size:16px}
+  .cta{width:100%;height:48px;border:0;border-radius:8px;background:#191F28;color:#fff;
+    font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+  .cta.ghost{background:#fff;color:#191F28;border:1px solid #D1D6DB}
+  .done{text-align:center;padding-top:60px}
+  .check{width:56px;height:56px;border-radius:50%;background:rgba(112,217,173,.18);color:#189C74;
+    font-size:26px;display:grid;place-items:center;margin:0 auto 16px}
+  section[data-screen]{display:none}
+  section[data-screen].is-active{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section data-screen="plan" data-title="정기권 신청" class="is-active">
+    <header><strong>파킹온 정기권</strong></header>
+    <h1>얼마나 쓰실 건가요?</h1>
+    <p class="sub">기간을 먼저 고르면 대수는 다음에 정할 수 있어요.</p>
+    <button class="opt" aria-checked="true" data-plan="1" data-price="88,000">
+      <span class="dot"></span><span class="body"><b>1개월 · 1대</b><small>언제든 해지할 수 있어요</small></span>
+      <span class="won">88,000원</span></button>
+    <button class="opt" aria-checked="false" data-plan="3" data-price="242,000">
+      <span class="dot"></span><span class="body"><b>3개월 · 1대<span class="tag">8% 할인</span></b><small>월 80,667원 꼴이에요</small></span>
+      <span class="won">242,000원</span></button>
+    <button class="opt" aria-checked="false" data-plan="12" data-price="897,600">
+      <span class="dot"></span><span class="body"><b>12개월 · 1대<span class="tag">15% 할인</span></b><small>월 74,800원 꼴이에요</small></span>
+      <span class="won">897,600원</span></button>
+    <button class="cta" data-go="pay">다음</button>
+  </section>
+
+  <section data-screen="pay" data-title="결제하기">
+    <header><button data-go="plan" aria-label="뒤로">←</button><strong>결제하기</strong></header>
+    <h1>어떻게 결제할까요?</h1>
+    <p class="sub">결제 전에 한 번 더 확인할 수 있어요.</p>
+    <div class="summary">
+      <div class="row"><span>선택한 요금제</span><span id="sum-plan">1개월 · 1대</span></div>
+      <div class="row"><span>주차장</span><span>역삼 센터필드 B2</span></div>
+      <div class="row total"><span>합계</span><span id="sum-price">88,000원</span></div>
+    </div>
+    <button class="opt" aria-checked="true"><span class="dot"></span>
+      <span class="body"><b>신용·체크카드</b><small>국내 모든 카드</small></span></button>
+    <button class="opt" aria-checked="false"><span class="dot"></span>
+      <span class="body"><b>계좌 간편결제</b><small>등록한 계좌에서 바로 빠져나가요</small></span></button>
+    <button class="cta" data-go="done">결제하기</button>
+  </section>
+
+  <section data-screen="done" data-title="신청 완료">
+    <div class="done">
+      <div class="check">✓</div>
+      <h1>정기권이 시작됐어요</h1>
+      <p class="sub">역삼 센터필드 B2 · 12가 3456</p>
+      <button class="cta ghost" data-go="plan">처음으로</button>
+    </div>
+  </section>
+
+</div>
+<script>
+  const screens = [...document.querySelectorAll('section[data-screen]')];
+  const show = (id) => {
+    const target = screens.find(s => s.dataset.screen === id) || screens[0];
+    screens.forEach(s => s.classList.toggle('is-active', s === target));
+    document.title = target.dataset.title;
+    if (location.hash.slice(1) !== target.dataset.screen) location.hash = target.dataset.screen;
+    window.scrollTo(0, 0);
+  };
+  document.addEventListener('click', (e) => {
+    const nav = e.target.closest('[data-go]');
+    if (nav) { show(nav.dataset.go); return; }
+    const opt = e.target.closest('.opt');
+    if (opt && opt.dataset.plan) {
+      opt.parentElement.querySelectorAll('.opt').forEach(o => o.setAttribute('aria-checked', 'false'));
+      opt.setAttribute('aria-checked', 'true');
+      document.getElementById('sum-plan').textContent = opt.dataset.plan + '개월 · 1대';
+      document.getElementById('sum-price').textContent = opt.dataset.price + '원';
+    } else if (opt) {
+      opt.parentElement.querySelectorAll('.opt:not([data-plan])').forEach(o => o.setAttribute('aria-checked', 'false'));
+      opt.setAttribute('aria-checked', 'true');
+    }
+  });
+  window.addEventListener('hashchange', () => show(location.hash.slice(1) || 'plan'));
+  show(location.hash.slice(1) || 'plan');
+</script>
+</body>
+</html>

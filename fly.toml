@@ -1,0 +1,29 @@
+# 요티 — Fly.io 설정
+# 배포 전에 아래 두 가지를 먼저 해주세요.
+#   fly volumes create yoti_data --size 3 --region nrt
+#   fly secrets set ANTHROPIC_API_KEY=... YOTI_ADMIN_PASSWORD=... YOTI_SESSION_SECRET=...
+app = "yoti"
+primary_region = "nrt"
+
+[build]
+
+[env]
+  PORT = "8080"
+  YOTI_DATA = "/data"
+
+# UT와 참여 기록이 여기 쌓여요. 이게 없으면 재배포할 때 다 날아갑니다.
+[[mounts]]
+  source = "yoti_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # 볼륨을 쓰는 앱이라 인스턴스를 하나로 고정해요
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"   # 참여 기록이 많아져 느려지면 1gb로 올리세요

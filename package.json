@@ -1,0 +1,17 @@
+{
+  "name": "yoti",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "요티 — 프로토타입 제작부터 사용자 테스트까지",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.72.0",
+    "@vercel/blob": "^2.8.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
