@@ -3088,7 +3088,7 @@ UT는 지워지지 않고 미분류로 옮겨져요.`, current);
     const mode = typeof task === 'string' ? 'none' : normalizeSuccessMode(task);
     openRunnerCompletion();
   };
-  const submitRunnerAnswer = () => {
+  const submitRunnerAnswer = async () => {
     const task = runnerTasks[runnerTaskIndex];
     const mode = typeof task === 'string' ? 'none' : normalizeSuccessMode(task);
     // 결과 문구를 이미 보여준 뒤라면 그대로 마칩니다
@@ -3117,7 +3117,18 @@ UT는 지워지지 않고 미분류로 옮겨져요.`, current);
       runnerAnswerInput.focus();
       return;
     }
-    const matched = answer === String(task.expectedAnswer || '').trim();
+    // 정답은 참여자 브라우저로 내려오지 않아요. 서버에 맞았는지만 물어봅니다.
+    let matched = false;
+    try {
+      const verdict = await api(`/api/uts/${encodeURIComponent(runnerSession?.projectId || participantUtId)}/check-answer`, {
+        method: 'POST', body: { answer },
+      });
+      matched = Boolean(verdict?.matched);
+    } catch (error) {
+      // 서버에 못 물어보면 예전 방식으로 (만든 사람이 미리 해보는 중일 때)
+      matched = answer === String(task.expectedAnswer || '').trim();
+    }
+    if (runnerSession) runnerSession.quizAnswer = answer;
     if (runnerSession?.startedAt && !runnerSessionSaved) {
       runnerSession.events.push({
         kind: 'answer-submit',
@@ -3689,14 +3700,13 @@ UT는 지워지지 않고 미분류로 옮겨져요.`, current);
     const shell = $('.app-shell');
     if (shell) shell.hidden = true;
     try {
-      const [project, sessions] = await Promise.all([
-        api(`/api/uts/${participantUtId}`),
-        api(`/api/uts/${participantUtId}/sessions`).catch(() => [])
-      ]);
+      // 참여 기록 목록은 다른 참여자 정보가 들어 있어 참여자에겐 안 열려요.
+      // A/B 배정에 필요한 건 지금까지 참여한 수뿐입니다.
+      const project = await api(`/api/uts/${participantUtId}`);
       // A/B는 링크에 들어온 순서대로 번갈아 배정해요
       const isAb = (project.mode === 'ab' || project.utType === 'ab') && (project.htmlB || project.figmaEmbedB);
       if (isAb) {
-        participantVariant = (Array.isArray(sessions) ? sessions.length : 0) % 2 === 0 ? 'A' : 'B';
+        participantVariant = (Number(project.sessionCount) || 0) % 2 === 0 ? 'A' : 'B';
         if (participantVariant === 'B') {
           if (project.htmlB) project.html = project.htmlB;
           if (project.figmaEmbedB) project.figmaEmbed = project.figmaEmbedB;
