@@ -1938,3 +1938,69 @@ body {
 .login-error { width: 100%; margin: 8px 0 0; color: var(--color-error); font-size: var(--font-caption-6); line-height: var(--line-caption-6); text-align: left; }
 .login-error[hidden] { display: none; }
 .login-submit { width: 100%; min-height: 48px; margin-top: 20px; }
+
+/* ── 폴더 ───────────────────────────────────────────────── */
+.folder-bar { display: flex; flex-wrap: wrap; max-width: 1440px; gap: 8px; margin: 0 auto 20px; }
+.folder-bar:empty { display: none; }
+.folder-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 36px; padding: 0 14px;
+  border: 1px solid var(--color-border); border-radius: var(--radius-full);
+  background: var(--color-surface); color: var(--color-text-secondary);
+  font-size: var(--font-caption-5); line-height: var(--line-caption-5); font-weight: 500;
+  cursor: pointer; transition: border-color var(--transition), background var(--transition), color var(--transition);
+}
+.folder-chip:hover { border-color: var(--color-primary); color: var(--color-text); }
+.folder-chip.is-active { border-color: var(--color-primary-pressed); background: var(--color-primary-light); color: var(--color-text); }
+.folder-chip > span { color: var(--color-text-tertiary); font-size: var(--font-caption-6); }
+.folder-chip.is-active > span { color: var(--color-primary-pressed); }
+.folder-chip-edit {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; margin-right: -4px; border-radius: var(--radius-full);
+  color: var(--color-text-tertiary); font-size: 12px; font-style: normal; line-height: 1;
+}
+.folder-chip-edit:hover { background: var(--color-canvas); color: var(--color-text); }
+
+/* 카드의 폴더 버튼 */
+.project-card { position: relative; }
+.project-folder-button {
+  position: absolute; right: 14px; bottom: 14px;
+  display: inline-flex; align-items: center; gap: 6px;
+  max-width: calc(100% - 28px); min-height: 30px; padding: 0 10px;
+  border: 1px solid var(--color-border-light); border-radius: var(--radius-full);
+  background: var(--color-surface); color: var(--color-text-tertiary);
+  font-size: var(--font-caption-6); line-height: var(--line-caption-6);
+  cursor: pointer; transition: border-color var(--transition), color var(--transition);
+}
+.project-folder-button:hover { border-color: var(--color-primary); color: var(--color-text); }
+.project-folder-button svg { flex: none; width: 14px; height: 14px; }
+.project-folder-button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* 폴더 이동 모달 */
+.folder-modal { width: min(440px, 100%); }
+.folder-modal .modal-header { margin-bottom: 0; }
+.folder-modal-target { margin: 4px 0 0; color: var(--color-text-secondary); font-size: var(--font-caption-5); line-height: var(--line-caption-5); }
+.folder-pick { display: grid; gap: 4px; padding: 0 12px; }
+.folder-option {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; min-height: 48px; padding: 0 14px;
+  border: 1px solid transparent; border-radius: var(--radius-lg);
+  background: transparent; color: var(--color-text);
+  font-size: var(--font-body-4); line-height: var(--line-body-4);
+  cursor: pointer; text-align: left; transition: background var(--transition), border-color var(--transition);
+}
+.folder-option:hover { background: var(--color-canvas); }
+.folder-option.is-selected { border-color: var(--color-primary-pressed); background: var(--color-primary-light); }
+.folder-option > svg { flex: none; width: 18px; height: 18px; color: var(--color-text-tertiary); }
+.folder-option > span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.folder-option-check { flex: none; width: 18px; height: 18px; color: var(--color-primary-pressed); }
+
+.folder-new { display: grid; gap: 8px; margin: 18px 0 0; padding: 18px 24px 24px; border-top: 1px solid var(--color-border-light); }
+.folder-new label { color: var(--color-text-secondary); font-size: var(--font-caption-5); font-weight: 500; line-height: var(--line-caption-5); }
+.folder-new-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.folder-new-row input {
+  width: 100%; min-height: 44px; padding: 0 14px;
+  border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+  color: var(--color-text); background: var(--color-surface); font-size: var(--font-body-4);
+}
+.folder-new-row input:focus { border-color: var(--color-primary); outline: none; }

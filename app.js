@@ -1979,6 +1979,129 @@
 
   const methodBadge = (method) => ({ ai: 'AI 생성', figma: 'Figma', html: 'HTML' })[method] || 'HTML';
 
+  // ── 폴더 ─────────────────────────────────────────────────────
+  let folders = [];
+  let activeFolder = 'all';   // 'all' | 'none' | 폴더 id
+  let allProjects = [];
+
+  const folderName = (id) => folders.find((f) => f.id === id)?.name || '';
+
+  const inActiveFolder = (project) => {
+    if (activeFolder === 'all') return true;
+    if (activeFolder === 'none') return !project.folderId;
+    return project.folderId === activeFolder;
+  };
+
+  const renderFolderBar = () => {
+    const bar = $('.folder-bar');
+    if (!bar) return;
+    const countOf = (id) => allProjects.filter((p) =>
+      id === 'all' ? true : id === 'none' ? !p.folderId : p.folderId === id).length;
+    const loose = allProjects.filter((p) => !p.folderId).length;
+
+    const chips = [{ id: 'all', name: '전체' }]
+      .concat(folders.map((f) => ({ id: f.id, name: f.name })))
+      .concat(loose && folders.length ? [{ id: 'none', name: '미분류' }] : []);
+
+    bar.innerHTML = chips.map((chip) => `
+      <button type="button" role="tab" class="folder-chip${chip.id === activeFolder ? ' is-active' : ''}"
+        aria-selected="${chip.id === activeFolder}" data-folder-chip="${escapeHtml(chip.id)}">
+        ${escapeHtml(chip.name)}<span>${countOf(chip.id)}</span>
+        ${chip.id !== 'all' && chip.id !== 'none' ? '<i class="folder-chip-edit" data-folder-edit="' + escapeHtml(chip.id) + '" role="button" tabindex="0" aria-label="폴더 이름 바꾸기·삭제">···</i>' : ''}
+      </button>`).join('');
+  };
+
+  const loadFolders = async () => {
+    try { folders = await api('/api/folders'); } catch (error) { folders = []; }
+  };
+
+  $('.folder-bar')?.addEventListener('click', async (event) => {
+    const edit = event.target.closest('[data-folder-edit]');
+    if (edit) {
+      event.stopPropagation();
+      const id = edit.dataset.folderEdit;
+      const current = folderName(id);
+      const next = window.prompt(`폴더 이름 (비우고 확인하면 폴더를 지워요)
+
+UT는 지워지지 않고 미분류로 옮겨져요.`, current);
+      if (next === null) return;
+      try {
+        if (!next.trim()) {
+          await api(`/api/folders/${encodeURIComponent(id)}`, { method: 'DELETE' });
+          if (activeFolder === id) activeFolder = 'all';
+          showToast(`'${current}' 폴더를 지웠어요. UT는 미분류에 있어요.`);
+        } else {
+          await api(`/api/folders/${encodeURIComponent(id)}`, { method: 'PATCH', body: { name: next.trim() } });
+          showToast('폴더 이름을 바꿨어요.');
+        }
+        await loadFolders();
+        await renderImportedProjects();
+      } catch (error) {
+        showToast(error.message || '폴더를 바꾸지 못했어요.');
+      }
+      return;
+    }
+    const chip = event.target.closest('[data-folder-chip]');
+    if (!chip) return;
+    activeFolder = chip.dataset.folderChip;
+    renderFolderBar();
+    renderProjectCards();
+  });
+
+  // ── 폴더 이동 모달 ───────────────────────────────────────────
+  let movingProject = null;
+
+  const renderFolderPick = () => {
+    const box = $('.folder-pick');
+    if (!box) return;
+    const current = movingProject?.folderId || '';
+    box.innerHTML = [{ id: '', name: '미분류' }].concat(folders).map((folder) => `
+      <button type="button" role="radio" aria-checked="${folder.id === current}"
+        class="folder-option${folder.id === current ? ' is-selected' : ''}" data-folder-move="${escapeHtml(folder.id)}">
+        <svg><use href="#i-folder"></use></svg><span>${escapeHtml(folder.name)}</span>
+        ${folder.id === current ? '<svg class="folder-option-check"><use href="#i-check"></use></svg>' : ''}
+      </button>`).join('');
+  };
+
+  const openFolderModal = async (project, opener) => {
+    movingProject = project;
+    $('.folder-modal-target').textContent = project.title || 'UT';
+    await loadFolders();
+    renderFolderPick();
+    $('#folder-new-name').value = '';
+    openModal('folder', opener);
+  };
+
+  $('.folder-pick')?.addEventListener('click', async (event) => {
+    const option = event.target.closest('[data-folder-move]');
+    if (!option || !movingProject) return;
+    const folderId = option.dataset.folderMove;
+    try {
+      await api(`/api/uts/${encodeURIComponent(movingProject.id)}`, { method: 'PATCH', body: { folderId } });
+      showToast(folderId ? `'${folderName(folderId)}' 폴더로 옮겼어요.` : '미분류로 옮겼어요.');
+      closeModal($('[data-modal="folder"]'));
+      await renderImportedProjects();
+    } catch (error) {
+      showToast(error.message || '옮기지 못했어요.');
+    }
+  });
+
+  $('.folder-new')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const input = $('#folder-new-name');
+    const name = input.value.trim();
+    if (!name) return;
+    try {
+      const folder = await api('/api/folders', { method: 'POST', body: { name } });
+      folders.push(folder);
+      input.value = '';
+      renderFolderPick();
+      showToast(`'${folder.name}' 폴더를 만들었어요.`);
+    } catch (error) {
+      showToast(error.message || '폴더를 만들지 못했어요.');
+    }
+  });
+
   // 홈 상단 KPI — 만든 UT 전체를 한 번에 보여줘요
   const renderDashboardKpi = async () => {
     const box = $('#dashboard-kpi');
@@ -2007,6 +2130,25 @@
     )).join('');
   };
 
+  const renderProjectCards = () => {
+    const container = $('#imported-projects');
+    if (!container) return;
+    const shown = allProjects.filter(inActiveFolder);
+    if (!shown.length) {
+      container.innerHTML = activeFolder === 'all'
+        ? ''
+        : `<p class="project-empty">이 폴더에는 아직 UT가 없어요. 카드의 <strong>폴더</strong> 버튼으로 옮길 수 있어요.</p>`;
+      return;
+    }
+    container.innerHTML = shown.map((project) => {
+      const sessions = project.sessionCount || 0;
+      const succeeded = project.successCount || 0;
+      const rate = sessions ? `${Math.round((succeeded / sessions) * 100)}%` : '—';
+      const folder = project.folderId ? folderName(project.folderId) : '';
+      return `<article class="project-card imported-html-card" data-html-project-id="${project.id}" tabindex="0" role="button" aria-label="${escapeHtml(project.title)} 열기"><div class="project-card-body"><div><span class="project-card-tags"><span class="badge badge-gray">${methodBadge(project.method)}</span>${utTypeBadges(project)}</span><span class="badge badge-green">실행 가능</span></div><h2>${escapeHtml(project.title)}</h2><dl><div><dt>참여자</dt><dd>${sessions}명</dd></div><div><dt>성공률</dt><dd>${rate}</dd></div></dl></div><button class="project-folder-button" type="button" data-move-folder="${project.id}" title="폴더로 옮기기" aria-label="${escapeHtml(project.title)} 폴더로 옮기기"><svg><use href="#i-folder"></use></svg>${folder ? `<span>${escapeHtml(folder)}</span>` : '<span>폴더</span>'}</button></article>`;
+    }).join('');
+  };
+
   const renderImportedProjects = async () => {
     const container = $('#imported-projects');
     const activeList = $('#active-projects');
@@ -2021,15 +2163,17 @@
     }
     // 최근에 만든 게 위로
     imported.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    allProjects = imported;
+    await loadFolders();
+    // 지운 폴더를 보고 있었으면 전체로 돌아가요
+    if (activeFolder !== 'all' && activeFolder !== 'none' && !folders.some((f) => f.id === activeFolder)) {
+      activeFolder = 'all';
+    }
+    renderFolderBar();
     renderDashboardKpi();
     loadParticipants();
 
-    container.innerHTML = imported.map((project) => {
-      const sessions = project.sessionCount || 0;
-      const succeeded = project.successCount || 0;
-      const rate = sessions ? `${Math.round((succeeded / sessions) * 100)}%` : '—';
-      return `<article class="project-card imported-html-card" data-html-project-id="${project.id}" tabindex="0" role="button" aria-label="${escapeHtml(project.title)} 열기"><div class="project-card-body"><div><span class="project-card-tags"><span class="badge badge-gray">${methodBadge(project.method)}</span>${utTypeBadges(project)}</span><span class="badge badge-green">실행 가능</span></div><h2>${escapeHtml(project.title)}</h2><dl><div><dt>참여자</dt><dd>${sessions}명</dd></div><div><dt>성공률</dt><dd>${rate}</dd></div></dl></div></article>`;
-    }).join('');
+    renderProjectCards();
 
     // 홈 화면 목록
     if (activeList) {
@@ -2067,6 +2211,14 @@
 
   // 홈·프로젝트 어디서 눌러도 같은 UT가 열려요
   document.addEventListener('click', (event) => {
+    const move = event.target.closest('[data-move-folder]');
+    if (move) {
+      event.preventDefault();
+      event.stopPropagation();
+      const project = allProjects.find((p) => p.id === move.dataset.moveFolder);
+      if (project) openFolderModal(project, move);
+      return;
+    }
     const card = event.target.closest('[data-html-project-id]');
     if (card) openHtmlProject(card.dataset.htmlProjectId);
   });
