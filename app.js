@@ -3730,13 +3730,19 @@ UT는 지워지지 않고 미분류로 옮겨져요.`, current);
   };
 
   // ── 설정 (워크스페이스 · 계정) ─────────────────────────────
-  // 로그인 연동 전이라 브라우저에만 저장해요. 서버가 붙으면 이 자리만 바꾸면 됩니다.
+  // 표시용 프로필만 브라우저에 저장해요. 관리자 인증은 서버의 비밀번호로 처리합니다.
   const SETTINGS_KEY = 'yoti-settings';
-  const DEFAULT_SETTINGS = { accountName: '김태은', accountEmail: 'jensen@plitsoft.com' };
+  const DEFAULT_SETTINGS = { accountName: '김태은', accountEmail: 'taeeunio@naver.com' };
 
   const readSettings = () => {
     try {
-      return { ...DEFAULT_SETTINGS, ...(JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}) };
+      const settings = { ...DEFAULT_SETTINGS, ...(JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}) };
+      // 기존 브라우저의 옛 기본 이메일만 이전하고 이름 등 다른 설정은 유지해요.
+      if (settings.accountEmail === 'jensen@plitsoft.com') {
+        settings.accountEmail = DEFAULT_SETTINGS.accountEmail;
+        try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (error) { /* 저장 못 해도 새 이메일을 표시 */ }
+      }
+      return settings;
     } catch (error) { return { ...DEFAULT_SETTINGS }; }
   };
 
